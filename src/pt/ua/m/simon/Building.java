@@ -1,5 +1,6 @@
 package pt.ua.m.simon;
 
+import pt.ua.concurrent.Future;
 import pt.ua.m.simon.view.ElevatorGBoard;
 
 import java.util.LinkedList;
@@ -36,12 +37,18 @@ public class Building {
 
             ui.moveToElevator(p);
 
-            while(p.getCurrentFloor() != elevator.getCurrentFloor()){
+            if(p.getCurrentFloor() != elevator.getCurrentFloor()){
                 logger.info("calling elevator to go to person at floor " + p.getCurrentFloor());
-                elevator.goToFloor(p.getCurrentFloor());    // call the elevator to persons floor
-                // TODO: wait for future result and check if its good
-                //  - why is the elevator called thousands of times? should be once and then waiting
+//                Future<Integer> f = elevator.goToFloor(p.getCurrentFloor());    // call the elevator to persons floor
+                Future f = elevator.goToFloorFuture(p.getCurrentFloor());
+                f.done();
             }
+//            while(p.getCurrentFloor() != elevator.getCurrentFloor()){
+//                logger.info("calling elevator to go to person at floor " + p.getCurrentFloor());
+//                elevator.goToFloor(p.getCurrentFloor());    // call the elevator to persons floor
+//                // TODO: wait for future result and check if its good
+//                //  - why is the elevator called thousands of times? should be once and then waiting
+//            }
             logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
             int numFloors = p.getDestinationFloor() - p.getCurrentFloor();
             elevator.goToFloor(p.getDestinationFloor());
