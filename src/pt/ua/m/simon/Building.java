@@ -1,6 +1,8 @@
 package pt.ua.m.simon;
 
-import java.util.Random;
+import pt.ua.m.simon.view.ElevatorGBoard;
+
+import java.util.LinkedList;
 import java.util.logging.Logger;
 
 public class Building {
@@ -10,29 +12,55 @@ public class Building {
     int noPeople;
     int noFloors;
     Elevator elevator;
-    Person[] people;
+    LinkedList<Person> people;
+
+    private ElevatorGBoard ui;
 
     public Building(int numPeople, int numFloors) {
         this.noPeople = numPeople;
         this.noFloors = numFloors;
         this.elevator = new Elevator();
-        this.people = new Person[noPeople];
+        this.people = new LinkedList<>();
+        char[] alphabet = new char[]{'A','B','C','D','E','F','G','H','I','J'};
         for (int i = 0; i < noPeople; i++) {
 //            int dest = Math.random();
-            this.people[i] = new Person(3,0,("Person " + i));
+            this.people.push(new Person(3,0,alphabet[i]));
         }
+
+        ui = new ElevatorGBoard(this.people);
     }
 
     void runSimulation(){
         for (int i = 0; i < noPeople; i++) {
-            Person p = people[i];
+            Person p = people.pop();
+
+            ui.moveToElevator(p);
+
             while(p.getCurrentFloor() != elevator.getCurrentFloor()){
                 logger.info("calling elevator to go to person at floor " + p.getCurrentFloor());
                 elevator.goToFloor(p.getCurrentFloor());    // call the elevator to persons floor
                 // TODO: wait for future result and check if its good
+                //  - why is the elevator called thousands of times? should be once and then waiting
             }
             logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
+            int numFloors = p.getDestinationFloor() - p.getCurrentFloor();
             elevator.goToFloor(p.getDestinationFloor());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // TODO: check future and update UI
+            for (int j = 0; j < numFloors; j++) {
+                ui.moveUp(p);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            ui.moveToEnd(p);
         }
 
         //elevator.terminate();

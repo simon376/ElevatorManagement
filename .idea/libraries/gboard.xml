@@ -1,8 +1,6 @@
 <component name="libraryTable">
-  <library name="pt.ua.gboard">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/OneDrive/Backup/Studium/Ausland/Concurrent Object-Oriented Programming/pt.ua.gboard.jar!/" />
-    </CLASSES>
+  <library name="gboard">
+    <CLASSES />
     <JAVADOC />
     <SOURCES>
       <root url="file://$USER_HOME$/OneDrive/Backup/Studium/Ausland/Concurrent Object-Oriented Programming/gboard_source" />

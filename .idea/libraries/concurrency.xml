@@ -1,8 +1,6 @@
 <component name="libraryTable">
-  <library name="pt.ua.concurrent">
-    <CLASSES>
-      <root url="jar://$USER_HOME$/OneDrive/Backup/Studium/Ausland/Concurrent Object-Oriented Programming/pt.ua.concurrent.jar!/" />
-    </CLASSES>
+  <library name="concurrency">
+    <CLASSES />
     <JAVADOC />
     <SOURCES>
       <root url="file://$USER_HOME$/OneDrive/Backup/Studium/Ausland/Concurrent Object-Oriented Programming/dbc_source" />

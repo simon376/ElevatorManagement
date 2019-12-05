@@ -7,7 +7,27 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="pt.ua.gboard" level="project" />
+    <orderEntry type="library" name="gboard" level="project" />
+    <orderEntry type="library" name="concurrency" level="project" />
+    <orderEntry type="module-library">
+      <library name="dbc">
+        <CLASSES />
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/OneDrive/Backup/Studium/Ausland/Concurrent Object-Oriented Programming/dbc_source" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="gboard_src">
+        <CLASSES />
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$USER_HOME$/OneDrive/Backup/Studium/Ausland/Concurrent Object-Oriented Programming/gboard_source" />
+        </SOURCES>
+      </library>
+    </orderEntry>
     <orderEntry type="library" name="pt.ua.concurrent" level="project" />
+    <orderEntry type="library" name="pt.ua.gboard" level="project" />
   </component>
 </module>
