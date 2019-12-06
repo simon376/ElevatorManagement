@@ -7,6 +7,8 @@ import pt.ua.gboard.basic.*;
 import pt.ua.gboard.games.PacmanGelem;
 import pt.ua.gboard.shapes.ShapeGelem;
 import pt.ua.gboard.shapes.Shapes;
+import pt.ua.m.simon.IObservable;
+import pt.ua.m.simon.IObserver;
 import pt.ua.m.simon.Person;
 
 import javax.swing.*;
@@ -14,10 +16,13 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.LinkedList;
+import java.util.Observable;
+import java.util.Observer;
 
 import static java.lang.System.out;
 
-public class ElevatorGBoard {
+// This is the View
+public class ElevatorGBoard implements IObserver {
 
     protected static final GBoard board = new GBoard("Test", 8, 8, 60, 60, 2);
 
@@ -26,10 +31,13 @@ public class ElevatorGBoard {
     private Gelem elevator;
     private int elevatorColumn = 2; //r,c
 
-    private LinkedList<Person> users;
+    private LinkedList<IObservable> users;
 
-    public ElevatorGBoard(LinkedList users) {
+    public ElevatorGBoard(LinkedList<IObservable> users) {
         this.users = users;
+        for(IObservable u : this.users) {
+            u.registerObserver(this);
+        }
         setupBoard();
     }
 
@@ -72,56 +80,57 @@ public class ElevatorGBoard {
         board.draw(new StringGelem("Fifth Floor", Color.green, 1, 8), 2,0,0);//row,column,layer
 
 
-        for(Person u : users){
+        for(IObservable i : users){
+            Person u = (Person) i;
             board.draw(u.getGelem(),u.getLine(),u.getColumn(),1);
         }
     }
 
 
     // TODO use one interface for person & elevator
-    public void moveToElevator(Person p){
-        while (p.getColumn() < elevatorColumn){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+//    public void moveToElevator(Person p){
+//        while (p.getColumn() < elevatorColumn){
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            moveRight(p);
+//        }
+//    }
+//
+//    public void moveToEnd(Person p){
+//        while(p.getColumn() < board.numberOfColumns() - 1){
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//
+//            moveRight(p);
+//        }
+//    }
 
-            moveRight(p);
-        }
-    }
-
-    public void moveToEnd(Person p){
-        while(p.getColumn() < board.numberOfColumns() - 1){
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            moveRight(p);
-        }
-    }
-
-
-    private void moveRight(Person p){
-        if(p.getColumn() < board.numberOfColumns() - 1){
-            int c = p.getColumn(), l = p.getLine();
-            int new_c = (c+1);
-            board.move(p.getGelem(),l,c,l,new_c);
-            p.setColumn(new_c);
-        }
-    }
-
-    public void moveUp(Person p){
-        int l = p.getLine();
-        if(l > 0){
-            int c = p.getColumn();
-            int new_l = (l-1);
-            board.move(p.getGelem(),l,c,new_l,c);
-            p.setLine(new_l);
-        }
-    }
+//
+//    private void moveRight(Person p){
+//        if(p.getColumn() < board.numberOfColumns() - 1){
+//            int c = p.getColumn(), l = p.getLine();
+//            int new_c = (c+1);
+//            board.move(p.getGelem(),l,c,l,new_c);
+//            p.setColumn(new_c);
+//        }
+//    }
+//
+//    public void moveUp(Person p){
+//        int l = p.getLine();
+//        if(l > 0){
+//            int c = p.getColumn();
+//            int new_l = (l-1);
+//            board.move(p.getGelem(),l,c,new_l,c);
+//            p.setLine(new_l);
+//        }
+//    }
 
     void mainGameLoop(){
         // go right until user.intersects(elevator)
@@ -133,6 +142,17 @@ public class ElevatorGBoard {
         // go right again until hit back wall. finished.
 
         // Erase board and re-draw
+    }
+
+
+
+    @Override
+    public void update(IObservable observable, int old_line, int old_col) {
+        // TODO: here move the Person
+        Person u = (Person) observable;
+        board.move(u.getGelem(),old_line,old_col,u.getLine(),u.getColumn());
+//        board.draw(u.getGelem(),u.getLine(),u.getColumn(),1);
+
     }
 }
 

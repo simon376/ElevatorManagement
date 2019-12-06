@@ -2,20 +2,28 @@ package pt.ua.m.simon;
 
 import pt.ua.concurrent.Actor;
 import pt.ua.concurrent.Future;
+import pt.ua.gboard.Gelem;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
-public class Elevator extends Actor {
+public class Elevator extends Actor implements IObservable{
 
     private static Logger logger = Logger.getLogger("pt.ua.m.simon.elevator");
 
     static final int MIN_FLOOR = -5;
     static final int MAX_FLOOR = 5;
     int currentFloor;
+    Gelem gelem;
+    int[] position;
+    int[] prev_position;
+    private ArrayList<IObserver> observers;
 
-    public Elevator() {
+    public Elevator(int l, int c) {
         super();
         this.currentFloor = 0;
+        this.position = this.prev_position = new int[]{l,c};    // TODO
+        this.observers = new ArrayList<>();
 
         start();    // start Thread
     }
@@ -40,6 +48,32 @@ public class Elevator extends Actor {
         Routine routine = new ElevatorRoutine(floor, result);   // create message
         inPendingRoutine(routine);  // "send" it to the Elevator-Actor
         return result;
+    }
+
+    @Override
+    public void registerObserver(IObserver o) {
+        observers.add(o);
+    }
+
+    @Override
+    public void notifyObservers() {
+        for (IObserver o : observers)
+            o.update(this, prev_position[0], prev_position[1]);
+    }
+
+    @Override
+    public Gelem getGelem() {
+        return gelem;
+    }
+
+    @Override
+    public int getLine() {
+        return position[0];
+    }
+
+    @Override
+    public int getColumn() {
+        return position[1];
     }
 
 
@@ -69,6 +103,8 @@ public class Elevator extends Actor {
                 try {
                     sleep(1000);    //TODO bad!
                     currentFloor += i;
+                    prev_position[1] = position[1];
+                    position[1] += i;
                     logger.info("current floor: " + currentFloor);
                     future.setResult(currentFloor);
 

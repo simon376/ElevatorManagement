@@ -6,6 +6,8 @@ import pt.ua.m.simon.view.ElevatorGBoard;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+
+// This is the Controller
 public class Building {
     // manages elevators, floors, etc
     private static Logger logger = Logger.getLogger("pt.ua.m.simon.building");
@@ -13,7 +15,7 @@ public class Building {
     int noPeople;
     int noFloors;
     Elevator elevator;
-    LinkedList<Person> people;
+    LinkedList<IObservable> people;
 
     private ElevatorGBoard ui;
 
@@ -33,8 +35,10 @@ public class Building {
 
     void runSimulation(){
         for (int i = 0; i < noPeople; i++) {
-            Person p = people.pop();
+            Person p = (Person) people.pop();
 
+            // while not at elevator
+            p.moveRight();
             ui.moveToElevator(p);
 
             if(p.getCurrentFloor() != elevator.getCurrentFloor()){
