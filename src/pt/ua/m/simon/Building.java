@@ -24,9 +24,11 @@ public class Building {
         this.people = new LinkedList<>();
         char[] alphabet = new char[]{'A','B','C','D','E','F','G','H','I','J'};
         Random ran = new Random();
+        int offset = 1;
         for (int i = 0; i < numPeople; i++) {
-            int dest = ran.nextInt(numFloors+1)+1;
-            this.people.push(new Person(dest,0,alphabet[i]));
+
+            int dest = ran.nextInt(numFloors-offset)+1+offset;
+            this.people.push(new Person(dest,numFloors, 0,alphabet[i]));
         }
         observables = new LinkedList<>();
         observables.addAll(this.people);
@@ -35,6 +37,8 @@ public class Building {
     }
 
     void runSimulation(){
+        // TODO: persons arrive concurrently
+
         for(Person p : people) {
 
             // while not at elevator
@@ -56,27 +60,22 @@ public class Building {
 
 
 //            elevator.goToFloor(p.getDestinationFloor());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
             // TODO: check future and update UI
-            Future<Integer> f = elevator.goToFloorFuture(p.getDestinationFloor());
-
-            for (int j = 0; j < numFloors; j++) {
-                p.moveUp(); // TODO bad: i'm manually moving the user here
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            Future<Integer> f = elevator.goToFloorFuture(p);
+//
+//            for (int j = 0; j < numFloors; j++) {
+//                p.moveUp(); // TODO bad: i'm manually moving the user here
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
             f.done();
 
 
-            while (p.getColumn() < ElevatorGBoard.NUM_COLS -1){
+            while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
                 p.moveRight();
             }
         }

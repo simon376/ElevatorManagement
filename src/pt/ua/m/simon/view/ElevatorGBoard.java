@@ -4,6 +4,8 @@ import pt.ua.gboard.GBoard;
 import pt.ua.gboard.GBoardInputHandler;
 import pt.ua.gboard.Gelem;
 import pt.ua.gboard.basic.*;
+import pt.ua.gboard.shapes.Line;
+import pt.ua.gboard.shapes.ShapeGelem;
 import pt.ua.m.simon.IObservable;
 import pt.ua.m.simon.IObserver;
 import pt.ua.m.simon.Person;
@@ -15,17 +17,18 @@ import java.util.LinkedList;
 // This is the View
 public class ElevatorGBoard implements IObserver {
 
-    protected static GBoard board;
+    private static GBoard board;
 
-    private int floors;
     private LinkedList<IObservable> observables;
-    public static int NUM_COLS = 8;
-    public static int NUM_LINES = 8;
-    public static final int FLOOR_DIST = 2;
+    private int NUM_COLS = 8;
+    private int NUM_LINES = 8;
+
+    public static GBoard getBoard() {
+        return board;
+    }
 
     public ElevatorGBoard(LinkedList<IObservable> observables, int floors) {
-        this.floors = floors;
-        NUM_LINES = floors*2;
+        NUM_LINES = floors+1;
         board = new GBoard("Test", NUM_LINES, NUM_COLS, 60, 60, 3);
         this.observables = observables;
         for(IObservable u : this.observables) {
@@ -45,26 +48,38 @@ public class ElevatorGBoard implements IObserver {
         board.contentPane().add(slider, BorderLayout.NORTH);
         board.frame().pack();
 
+        // TEST
+        Object[] c1 = {
+                "line", 0.25, 0.25, 0.75, 0.25,
+                "color", Color.green,
+                "line-width", 0.1};
+        board.draw(new ShapeGelem(c1), 0, 0, 0);
+
+
+
         Gelem elevatorCase = new FilledGelem(Color.orange, 90, board.numberOfLines(), 1);
         board.draw(elevatorCase, 0, 2, 0);
 
-        Gelem floor = new FilledGelem(Color.black, 90, 1, 8 ); // transparency?, 1 row, 8 columns
-        for (int i = 0; i < floors; i++) {
-            int line = board.numberOfLines() - 2*i -1;
-            board.draw(floor, line,0,0);//row,column,layer
-            String text = String.format("Floor %d",i);
-            board.draw(new StringGelem(text, Color.green,1,8), line,0,0);//row,column,layer
+        int noLines = board.numberOfLines();
+        for (int line = 0; line < noLines; line++) {
+            String text = String.format("Floor %d",noLines - line);
+            board.draw(new StringGelem(text, Color.green,1,board.numberOfColumns()), line, 0, 0);//row,column,layer
         }
 
+
         for(IObservable o : observables){
-            board.draw(o.getGelem(),o.getLine(),o.getColumn(),o.getLayer());
+            BuildingPosition pos = o.getPosition();
+            board.draw(o.getGelem(),pos.getLine(),pos.getColumn(),pos.getLayer());
         }
     }
 
 
     @Override
-    public void update(IObservable observable, BuildingPosition oldPosition) {
-        board.move(observable.getGelem(),oldPosition.getLine(), oldPosition.getColumn(),observable.getLine(),observable.getColumn());
+    public void update(IObservable o) {
+        BuildingPosition new_pos = o.getPosition();
+        BuildingPosition old_pos = o.getPrevPosition();
+
+        board.move(o.getGelem(),old_pos.getLine(), old_pos.getColumn(),new_pos.getLine(),new_pos.getColumn());
     }
 }
 

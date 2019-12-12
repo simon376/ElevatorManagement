@@ -21,6 +21,8 @@ public class Elevator extends Actor implements IObservable{
     BuildingPosition prev_position;
     private ArrayList<IObserver> observers;
 
+    // TODO: add list of Persons in Elevator to be updated
+
     public Elevator(int l, int c) {
         super();
         this.position =  new BuildingPosition(l,c);    // TODO
@@ -32,7 +34,6 @@ public class Elevator extends Actor implements IObservable{
     }
 
     public int getCurrentFloor() {
-        logger.info("floor: " + position.getFloor());
         return position.getFloor();
     }
 
@@ -48,7 +49,14 @@ public class Elevator extends Actor implements IObservable{
 
     Future<Integer> goToFloorFuture(int floor){
         final Future<Integer> result = new Future<Integer>(true);
-        Routine routine = new ElevatorRoutine(floor, result);   // create message
+        Routine routine = new EmptyElevatorRoutine(floor, result);   // create message
+        inPendingRoutine(routine);  // "send" it to the Elevator-Actor
+        return result;
+    }
+
+    Future<Integer> goToFloorFuture(Person person){
+        final Future<Integer> result = new Future<Integer>(true);
+        Routine routine = new ElevatorRoutine(person, result);   // create message
         inPendingRoutine(routine);  // "send" it to the Elevator-Actor
         return result;
     }
@@ -61,7 +69,7 @@ public class Elevator extends Actor implements IObservable{
     @Override
     public void notifyObservers() {
         for (IObserver o : observers)
-            o.update(this, prev_position);
+            o.update(this);
     }
 
     @Override
@@ -70,38 +78,36 @@ public class Elevator extends Actor implements IObservable{
     }
 
     @Override
-    public int getLine() {
-        return position.getLine();
+    public BuildingPosition getPosition() {
+        return position;
     }
 
     @Override
-    public int getColumn() {
-        return position.getColumn();
-    }
-
-    @Override
-    public int getLayer() {
-        return position.getLayer();
+    public BuildingPosition getPrevPosition() {
+        return prev_position;
     }
 
     public void move(boolean down)
     {
-        this.prev_position.setFloor(this.position.getFloor());
-//        this.prev_position.setLine(this.position.getLine());
+        int currLine = this.position.getLine();
+        prev_position.setLine(currLine);
         int i = down ? 1: -1;
-        position.setFloor(this.position.getFloor() + i);
-//        position.setLine(this.getLine() + i);
+        position.setLine(currLine + i);
+        if(down)
+            logger.info("elevator moving down, current:" + getCurrentFloor());
+        else
+            logger.info("elevator moving up, current:" + getCurrentFloor());
         notifyObservers();
     }
 
     // Routine is a first class function [method], not a "real" object --> message glaub ich
-    class ElevatorRoutine extends Actor.Routine{
-        private final int floor;
+    class EmptyElevatorRoutine extends Actor.Routine{
+        private final int destination;
         private final Future<Integer> future;
 
-        ElevatorRoutine(int floor, Future<Integer> result) {
+        EmptyElevatorRoutine(int floor, Future<Integer> result) {
             super();
-            this.floor = floor;
+            this.destination = floor;
             this.future = result;
         }
 
@@ -113,22 +119,62 @@ public class Elevator extends Actor implements IObservable{
         @Override
         public void execute() {
 
-            if(floor == position.getFloor())
+            if(destination == position.getFloor())
                 return;
-            boolean down = position.getFloor() > floor;
-            while(position.getFloor() != floor){
+            boolean down = position.getFloor() > destination;
+            while(position.getFloor() != destination){
                 try {
                     sleep(1000);    //TODO
                     move(down);
 
-                    logger.info("current floor: " + position.getFloor());
+
                     future.setResult(position.getFloor());
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            logger.info("finished routine to go to " + floor);
+            logger.info("finished routine to go to " + destination);
+            // set future?
+            futureDone(future);
+        }
+    }
+
+    class ElevatorRoutine extends Actor.Routine{
+        private final Person person;
+        private final Future<Integer> future;
+
+        ElevatorRoutine(Person person, Future<Integer> result) {
+            super();
+            this.person = person;
+            this.future = result;
+        }
+
+        @Override
+        public boolean concurrentPrecondition() {
+            return super.concurrentPrecondition();
+        }
+
+        @Override
+        public void execute() {
+
+            int destination = person.getDestinationFloor();
+            if(destination == position.getFloor())
+                return;
+            boolean down = position.getFloor() > destination;
+            while(position.getFloor() != destination){
+                try {
+                    sleep(1000);    //TODO
+                    move(down);
+                    person.moveUp();//TODO richtung
+
+                    future.setResult(position.getFloor());
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            logger.info("finished routine to go to " + destination);
             // set future?
             futureDone(future);
         }

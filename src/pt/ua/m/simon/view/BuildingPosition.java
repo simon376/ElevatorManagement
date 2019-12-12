@@ -6,18 +6,16 @@ import java.util.logging.Logger;
 
 // Modified version of Position.class in Gboard library
 public class BuildingPosition  {
-    private static Logger logger = Logger.getLogger("pt.ua.m.simon.view.BuildingPosition");
 
     // TODO that's not good!
     public int getFloor(){
-        return (ElevatorGBoard.NUM_LINES - line) / ElevatorGBoard.FLOOR_DIST;
+        return (ElevatorGBoard.getBoard().numberOfLines() - line);
     }
-    public void setFloor(int floor) { this.line = ElevatorGBoard.NUM_LINES - floor*ElevatorGBoard.FLOOR_DIST;}
+    public void setFloor(int floor) { this.line = ElevatorGBoard.getBoard().numberOfLines() - floor;}
     public int[] getInt() { return new int[]{line,column};}
 
-//    public void setLine(int line){ this.line = line;logger.info("setting line: " + this.line);
-//    }
-    public void setColumn(int column){ this.column = column;logger.info("setting column: " + this.column);}
+    public void setLine(int line){ this.line = line;}
+    public void setColumn(int column){ this.column = column;}
     public void setLayer(int layer){ this.layer = layer;}
 
 
