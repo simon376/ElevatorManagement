@@ -101,7 +101,7 @@ public class Elevator extends Actor implements IObservable{
             int i = (currentFloor < floor) ? 1 : -1;
             while(currentFloor != floor){
                 try {
-                    sleep(1000);    //TODO bad!
+                    sleep(1000);    //TODO
                     currentFloor += i;
                     prev_position[1] = position[1];
                     position[1] += i;
