@@ -4,155 +4,67 @@ import pt.ua.gboard.GBoard;
 import pt.ua.gboard.GBoardInputHandler;
 import pt.ua.gboard.Gelem;
 import pt.ua.gboard.basic.*;
-import pt.ua.gboard.games.PacmanGelem;
-import pt.ua.gboard.shapes.ShapeGelem;
-import pt.ua.gboard.shapes.Shapes;
 import pt.ua.m.simon.IObservable;
 import pt.ua.m.simon.IObserver;
 import pt.ua.m.simon.Person;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.util.LinkedList;
-import java.util.Observable;
-import java.util.Observer;
-
-import static java.lang.System.out;
 
 // This is the View
 public class ElevatorGBoard implements IObserver {
 
-    protected static final GBoard board = new GBoard("Test", 8, 8, 60, 60, 2);
+    protected static GBoard board;
 
-    private Gelem user;
-    private int[] userPosition; //r,c
-    private Gelem elevator;
-    private int elevatorColumn = 2; //r,c
+    private int floors;
+    private LinkedList<IObservable> observables;
+    public static int NUM_COLS = 8;
+    public static int NUM_LINES = 8;
+    public static final int FLOOR_DIST = 2;
 
-    private LinkedList<IObservable> users;
-
-    public ElevatorGBoard(LinkedList<IObservable> users) {
-        this.users = users;
-        for(IObservable u : this.users) {
+    public ElevatorGBoard(LinkedList<IObservable> observables, int floors) {
+        this.floors = floors;
+        NUM_LINES = floors*2;
+        board = new GBoard("Test", NUM_LINES, NUM_COLS, 60, 60, 3);
+        this.observables = observables;
+        for(IObservable u : this.observables) {
             u.registerObserver(this);
         }
         setupBoard();
     }
 
-    // TODO setup UI based on input (number of floors, elevators, etc.)
     private void setupBoard()
     {
         board.pushInputHandler(new InputHandler());
         JSlider slider = new JSlider(2,120,60);
-        slider.addChangeListener(new ChangeListener()
-        {
-            public void stateChanged(ChangeEvent e)
-            {
-                int size = ((JSlider)e.getSource()).getValue();
-                board.frame().setSize(size*8, size*8);
-            }
+        slider.addChangeListener(e -> {
+            int size = ((JSlider)e.getSource()).getValue();
+            board.frame().setSize(size*8, size*8);
         });
         board.contentPane().add(slider, BorderLayout.NORTH);
-
         board.frame().pack();
 
+        Gelem elevatorCase = new FilledGelem(Color.orange, 90, board.numberOfLines(), 1);
+        board.draw(elevatorCase, 0, 2, 0);
+
         Gelem floor = new FilledGelem(Color.black, 90, 1, 8 ); // transparency?, 1 row, 8 columns
-        Gelem elevatorCase = new FilledGelem(Color.orange, 90, 8, 1);
-        //TODO animate moving animator
-        elevator = new StripedGelem(Color.blue,4,1.0,1.0,false);
-//        elevator = new FilledGelem(Color.orange, 90, 8, 1);
+        for (int i = 0; i < floors; i++) {
+            int line = board.numberOfLines() - 2*i -1;
+            board.draw(floor, line,0,0);//row,column,layer
+            String text = String.format("Floor %d",i);
+            board.draw(new StringGelem(text, Color.green,1,8), line,0,0);//row,column,layer
+        }
 
-        user = new CharGelem('C', Color.red);
-
-        board.draw(elevatorCase, 0, elevatorColumn, 0);
-
-        // TODO: create converter function - bottom floor = high row value, etc.
-        // ground floor
-        board.draw(floor, 7,0,0);//row,column,layer
-        board.draw(new StringGelem("Ground", Color.green,1,8), 7,0,0);//row,column,layer
-        // third floor
-        board.draw(floor, 4,0,0);//row,column,layer
-        board.draw(new StringGelem("Third Floor", Color.green, 1, 8), 4,0,0);//row,column,layer
-        // fifth floor
-        board.draw(floor, 2,0,0);//row,column,layer
-        board.draw(new StringGelem("Fifth Floor", Color.green, 1, 8), 2,0,0);//row,column,layer
-
-
-        for(IObservable i : users){
-            Person u = (Person) i;
-            board.draw(u.getGelem(),u.getLine(),u.getColumn(),1);
+        for(IObservable o : observables){
+            board.draw(o.getGelem(),o.getLine(),o.getColumn(),o.getLayer());
         }
     }
 
 
-    // TODO use one interface for person & elevator
-//    public void moveToElevator(Person p){
-//        while (p.getColumn() < elevatorColumn){
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//            moveRight(p);
-//        }
-//    }
-//
-//    public void moveToEnd(Person p){
-//        while(p.getColumn() < board.numberOfColumns() - 1){
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//
-//            moveRight(p);
-//        }
-//    }
-
-//
-//    private void moveRight(Person p){
-//        if(p.getColumn() < board.numberOfColumns() - 1){
-//            int c = p.getColumn(), l = p.getLine();
-//            int new_c = (c+1);
-//            board.move(p.getGelem(),l,c,l,new_c);
-//            p.setColumn(new_c);
-//        }
-//    }
-//
-//    public void moveUp(Person p){
-//        int l = p.getLine();
-//        if(l > 0){
-//            int c = p.getColumn();
-//            int new_l = (l-1);
-//            board.move(p.getGelem(),l,c,new_l,c);
-//            p.setLine(new_l);
-//        }
-//    }
-
-    void mainGameLoop(){
-        // go right until user.intersects(elevator)
-
-        // call Elevator Actor ...
-
-        // update position
-
-        // go right again until hit back wall. finished.
-
-        // Erase board and re-draw
-    }
-
-
-
     @Override
-    public void update(IObservable observable, int old_line, int old_col) {
-        // TODO: here move the Person
-        Person u = (Person) observable;
-        board.move(u.getGelem(),old_line,old_col,u.getLine(),u.getColumn());
-//        board.draw(u.getGelem(),u.getLine(),u.getColumn(),1);
-
+    public void update(IObservable observable, BuildingPosition oldPosition) {
+        board.move(observable.getGelem(),oldPosition.getLine(), oldPosition.getColumn(),observable.getLine(),observable.getColumn());
     }
 }
 

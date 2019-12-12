@@ -4,6 +4,7 @@ import pt.ua.concurrent.Future;
 import pt.ua.m.simon.view.ElevatorGBoard;
 
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.logging.Logger;
 
 
@@ -12,39 +13,36 @@ public class Building {
     // manages elevators, floors, etc
     private static Logger logger = Logger.getLogger("pt.ua.m.simon.building");
 
-    int noPeople;
-    int noFloors;
     Elevator elevator;
-    LinkedList<IObservable> people;
+    LinkedList<Person> people;
+    LinkedList<IObservable> observables;
 
     private ElevatorGBoard ui;
 
     public Building(int numPeople, int numFloors) {
-        this.noPeople = numPeople;
-        this.noFloors = numFloors;
-        this.elevator = new Elevator();
+        this.elevator = new Elevator(3,2);
         this.people = new LinkedList<>();
         char[] alphabet = new char[]{'A','B','C','D','E','F','G','H','I','J'};
-        for (int i = 0; i < noPeople; i++) {
-//            int dest = Math.random();
-            this.people.push(new Person(3,0,alphabet[i]));
+        Random ran = new Random();
+        for (int i = 0; i < numPeople; i++) {
+            int dest = ran.nextInt(numFloors+1)+1;
+            this.people.push(new Person(dest,0,alphabet[i]));
         }
-
-        ui = new ElevatorGBoard(this.people);
+        observables = new LinkedList<>();
+        observables.addAll(this.people);
+        observables.add(this.elevator);
+        ui = new ElevatorGBoard(observables, numFloors);
     }
 
     void runSimulation(){
-        for (int i = 0; i < noPeople; i++) {
-            Person p = (Person) people.pop();
+        for(Person p : people) {
 
             // while not at elevator
             p.moveRight();
-            ui.moveToElevator(p);
 
             if(p.getCurrentFloor() != elevator.getCurrentFloor()){
                 logger.info("calling elevator to go to person at floor " + p.getCurrentFloor());
-//                Future<Integer> f = elevator.goToFloor(p.getCurrentFloor());    // call the elevator to persons floor
-                Future f = elevator.goToFloorFuture(p.getCurrentFloor());
+                Future f = elevator.goToFloorFuture(p.getCurrentFloor());   // call the elevator to persons floor
                 f.done();
             }
 //            while(p.getCurrentFloor() != elevator.getCurrentFloor()){
@@ -55,7 +53,9 @@ public class Building {
 //            }
             logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
             int numFloors = p.getDestinationFloor() - p.getCurrentFloor();
-            elevator.goToFloor(p.getDestinationFloor());
+
+
+//            elevator.goToFloor(p.getDestinationFloor());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -63,15 +63,22 @@ public class Building {
             }
 
             // TODO: check future and update UI
+            Future<Integer> f = elevator.goToFloorFuture(p.getDestinationFloor());
+
             for (int j = 0; j < numFloors; j++) {
-                ui.moveUp(p);
+                p.moveUp(); // TODO bad: i'm manually moving the user here
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            ui.moveToEnd(p);
+            f.done();
+
+
+            while (p.getColumn() < ElevatorGBoard.NUM_COLS -1){
+                p.moveRight();
+            }
         }
 
         //elevator.terminate();

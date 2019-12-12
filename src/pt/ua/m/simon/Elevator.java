@@ -3,7 +3,10 @@ package pt.ua.m.simon;
 import pt.ua.concurrent.Actor;
 import pt.ua.concurrent.Future;
 import pt.ua.gboard.Gelem;
+import pt.ua.gboard.basic.StripedGelem;
+import pt.ua.m.simon.view.BuildingPosition;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -13,30 +16,30 @@ public class Elevator extends Actor implements IObservable{
 
     static final int MIN_FLOOR = -5;
     static final int MAX_FLOOR = 5;
-    int currentFloor;
     Gelem gelem;
-    int[] position;
-    int[] prev_position;
+    BuildingPosition position;
+    BuildingPosition prev_position;
     private ArrayList<IObserver> observers;
 
     public Elevator(int l, int c) {
         super();
-        this.currentFloor = 0;
-        this.position = this.prev_position = new int[]{l,c};    // TODO
+        this.position =  new BuildingPosition(l,c);    // TODO
+        this.prev_position =  new BuildingPosition(l,c);    // TODO
         this.observers = new ArrayList<>();
-
+        this.gelem = new StripedGelem(Color.blue,4,1.0,1.0,false);
+        this.position.setLayer(1);
         start();    // start Thread
     }
 
     public int getCurrentFloor() {
-        logger.info("floor: " + currentFloor);
-        return currentFloor;
+        logger.info("floor: " + position.getFloor());
+        return position.getFloor();
     }
 
     // returns current floor
     Integer goToFloor(int floor){
         assert  (floor < MAX_FLOOR && floor > MIN_FLOOR);
-        logger.info("starting routine to go from: " + currentFloor + " to " + floor);
+        logger.info("starting routine to go from: " + position.getFloor() + " to " + floor);
 
         Future<Integer> future = goToFloorFuture(floor);
         return future.result();
@@ -58,7 +61,7 @@ public class Elevator extends Actor implements IObservable{
     @Override
     public void notifyObservers() {
         for (IObserver o : observers)
-            o.update(this, prev_position[0], prev_position[1]);
+            o.update(this, prev_position);
     }
 
     @Override
@@ -68,14 +71,28 @@ public class Elevator extends Actor implements IObservable{
 
     @Override
     public int getLine() {
-        return position[0];
+        return position.getLine();
     }
 
     @Override
     public int getColumn() {
-        return position[1];
+        return position.getColumn();
     }
 
+    @Override
+    public int getLayer() {
+        return position.getLayer();
+    }
+
+    public void move(boolean down)
+    {
+        this.prev_position.setFloor(this.position.getFloor());
+//        this.prev_position.setLine(this.position.getLine());
+        int i = down ? 1: -1;
+        position.setFloor(this.position.getFloor() + i);
+//        position.setLine(this.getLine() + i);
+        notifyObservers();
+    }
 
     // Routine is a first class function [method], not a "real" object --> message glaub ich
     class ElevatorRoutine extends Actor.Routine{
@@ -96,17 +113,16 @@ public class Elevator extends Actor implements IObservable{
         @Override
         public void execute() {
 
-            if(floor == currentFloor)
+            if(floor == position.getFloor())
                 return;
-            int i = (currentFloor < floor) ? 1 : -1;
-            while(currentFloor != floor){
+            boolean down = position.getFloor() > floor;
+            while(position.getFloor() != floor){
                 try {
                     sleep(1000);    //TODO
-                    currentFloor += i;
-                    prev_position[1] = position[1];
-                    position[1] += i;
-                    logger.info("current floor: " + currentFloor);
-                    future.setResult(currentFloor);
+                    move(down);
+
+                    logger.info("current floor: " + position.getFloor());
+                    future.setResult(position.getFloor());
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();

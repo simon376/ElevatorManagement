@@ -10,4 +10,5 @@ public interface IObservable {
     public Gelem getGelem();
     public int getLine();
     public int getColumn();
+    public int getLayer();
 }
