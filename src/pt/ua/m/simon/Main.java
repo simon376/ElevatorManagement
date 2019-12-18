@@ -2,7 +2,7 @@ package pt.ua.m.simon;
 
 import java.util.logging.Logger;
 
-public class Main {
+class Main {
     private static Logger logger = Logger.getLogger("pt.ua.m.simon.main");
 
     public static void main(String[] args) {

@@ -1,11 +1,10 @@
 package pt.ua.m.simon;
 
 
-import pt.ua.gboard.GBoard;
 import pt.ua.gboard.Gelem;
 import pt.ua.gboard.basic.CharGelem;
 import pt.ua.m.simon.view.BuildingPosition;
-import pt.ua.m.simon.view.ElevatorGBoard;
+import pt.ua.m.simon.view.Direction;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -18,15 +17,16 @@ public class Person implements IObservable {
 
 
     // person that gets spawned in the building and sends messages to the elevator to bring him somewhere
-    char name;
-    int destinationFloor;   // goal state
-    Gelem gelem;
-    BuildingPosition position;
-    BuildingPosition prev_position;
+    private char name;
+    private int destinationFloor;   // goal state
+    private Gelem gelem;
+    private BuildingPosition position;
+    private BuildingPosition prev_position;
 
     private ArrayList<IObserver> observers;
 
-    public Person(int destination, int startLine, int startColumn, char name) {
+
+    Person(int destination, int startLine, int startColumn, char name) {
         this.destinationFloor = destination;
         this.name = name;
         this.gelem = new CharGelem(name, Color.red);
@@ -37,22 +37,23 @@ public class Person implements IObservable {
     }
 
 
-    public void moveRight()
+    void move(Direction direction)
     {
-        logger.info(name + " moving right (" + getCurrentFloor() + ")");
-        int currCol = this.position.getColumn();
-        prev_position.setColumn(currCol);
-        position.setColumn(currCol+1);
-
-        notifyObservers();
-    }
-
-    public void moveUp()
-    {
-        logger.info(name + " moving up (" + getCurrentFloor() + ")");
         int currLine = this.position.getLine();
         prev_position.setLine(currLine);
-        position.setLine(currLine-1);
+        int currCol = this.position.getColumn();
+        prev_position.setColumn(currCol);
+
+        switch (direction){
+            case UP:
+                position.setLine(currLine-1); break;
+            case DOWN:
+                position.setLine(currLine+1); break;
+            case LEFT:
+                position.setColumn(currCol-1); break;
+            case RIGHT:
+                position.setColumn(currCol+1); break;
+        }
 
         notifyObservers();
     }
@@ -66,11 +67,11 @@ public class Person implements IObservable {
                 '}';
     }
 
-    public int getCurrentFloor() {
+    int getCurrentFloor() {
         return position.getFloor();
     }
 
-    public int getDestinationFloor() {
+    int getDestinationFloor() {
         return destinationFloor;
     }
 

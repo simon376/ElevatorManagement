@@ -2,8 +2,6 @@ package pt.ua.m.simon.view;
 
 import pt.ua.gboard.basic.Position;
 
-import java.util.logging.Logger;
-
 // Modified version of Position.class in Gboard library
 public class BuildingPosition  {
 
@@ -17,6 +15,7 @@ public class BuildingPosition  {
     public void setLine(int line){ this.line = line;}
     public void setColumn(int column){ this.column = column;}
     public void setLayer(int layer){ this.layer = layer;}
+
 
 
     /**
@@ -90,7 +89,7 @@ public class BuildingPosition  {
      * @return {@code boolean} true if equal
      */
     //@ requires line >= 0 && column >= 0;
-    public boolean isEqual(int line, int column)
+    private boolean isEqual(int line, int column)
     {
         assert line >= 0: "invalid line: "+line;
         assert column >= 0: "invalid column: "+column;
@@ -126,7 +125,7 @@ public class BuildingPosition  {
      * @return {@code boolean} true if greater than
      */
     //@ requires line >= 0 && column >= 0;
-    public boolean isGreater(int line, int column)
+    private boolean isGreater(int line, int column)
     {
         assert line >= 0: "invalid line: "+line;
         assert column >= 0: "invalid column: "+column;
@@ -163,7 +162,7 @@ public class BuildingPosition  {
      * @return {@code boolean} true if lower than
      */
     //@ requires line >= 0 && column >= 0;
-    public boolean isLower(int line, int column)
+    private boolean isLower(int line, int column)
     {
         assert line >= 0: "invalid line: "+line;
         assert column >= 0: "invalid column: "+column;
@@ -200,7 +199,7 @@ public class BuildingPosition  {
      * @return {@code boolean} true if greater than
      */
     //@ requires line >= 0 && column >= 0;
-    public boolean isGreaterOrEqual(int line, int column)
+    private boolean isGreaterOrEqual(int line, int column)
     {
         assert line >= 0: "invalid line: "+line;
         assert column >= 0: "invalid column: "+column;
@@ -237,7 +236,7 @@ public class BuildingPosition  {
      * @return {@code boolean} true if lower than
      */
     //@ requires line >= 0 && column >= 0;
-    public boolean isLowerOrEqual(int line, int column)
+    private boolean isLowerOrEqual(int line, int column)
     {
         assert line >= 0: "invalid line: "+line;
         assert column >= 0: "invalid column: "+column;
@@ -252,7 +251,9 @@ public class BuildingPosition  {
         return "("+line+","+column+")";
     }
 
-    protected int line;
-    protected int column;
-    protected int layer;
+    private int line;
+    private int column;
+    private int layer;
 }
+
+

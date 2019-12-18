@@ -4,11 +4,9 @@ import pt.ua.gboard.GBoard;
 import pt.ua.gboard.GBoardInputHandler;
 import pt.ua.gboard.Gelem;
 import pt.ua.gboard.basic.*;
-import pt.ua.gboard.shapes.Line;
 import pt.ua.gboard.shapes.ShapeGelem;
 import pt.ua.m.simon.IObservable;
 import pt.ua.m.simon.IObserver;
-import pt.ua.m.simon.Person;
 
 import javax.swing.*;
 import java.awt.*;
