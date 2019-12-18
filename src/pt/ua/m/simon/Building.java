@@ -57,7 +57,7 @@ class Building {
 
         while (p.getPosition().getColumn() < elevator.getPosition().getColumn()){
             try {
-                sleep(sleepTime);    //TODO
+                sleep(sleepTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -72,7 +72,6 @@ class Building {
             f.done();
         }
         logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
-        // TODO: check future and update UI
         Future f = elevator.goToFloorFuture(p);
 
 
@@ -80,7 +79,7 @@ class Building {
         f.done();
         while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
             try {
-                sleep(200);    //TODO
+                sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -88,22 +87,17 @@ class Building {
             p.move(Direction.RIGHT);
         }
 
-
-        //elevator.terminate();
-        // TODO: wait until elevators are finished working and then terminate
-
     }
 
 
     void runSimulation(){
-        // TODO: persons arrive concurrently
-        LinkedList<Future> futures = new LinkedList();
+        LinkedList<Future> futures = new LinkedList<>();
         for(Person p : people) {
 
             // while not at elevator
             while (p.getPosition().getColumn() < elevator.getPosition().getColumn()){
                 try {
-                    sleep(200);    //TODO
+                    sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -117,7 +111,6 @@ class Building {
                 futures.push(elevator.goToFloorFuture(p.getCurrentFloor())); // call the elevator to persons floor
             }
             logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
-            // TODO: check future and update UI
             futures.push(elevator.goToFloorFuture(p));
 
         }
@@ -126,7 +119,7 @@ class Building {
             futures.pop().done();
             while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
                 try {
-                    sleep(200);    //TODO
+                    sleep(200);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -136,8 +129,6 @@ class Building {
         }
 
         elevator.terminate();
-        // TODO: wait until elevators are finished working and then terminate
-
     }
 
 }

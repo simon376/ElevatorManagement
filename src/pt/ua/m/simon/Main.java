@@ -6,12 +6,15 @@ class Main {
     private static Logger logger = Logger.getLogger("pt.ua.m.simon.main");
 
     public static void main(String[] args) {
-	// write your code here
-        Building building = new Building(5,8);
+        int noPeople = 5; int noFloors = 8;
+        if(args.length == 1)
+            noPeople = Integer.parseInt(args[0]);
+        if(args.length == 2)
+            noFloors = Integer.parseInt(args[1]);
+        Building building = new Building(noPeople,noFloors);
         building.runSimulationConcurrent();
 //        building.runSimulation();
 
-//        BuildingView view = new BuildingView("gboard_map.txt",1);
         logger.info("finished execution of main.");
     }
 }

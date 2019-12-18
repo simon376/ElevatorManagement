@@ -5,7 +5,6 @@ import pt.ua.gboard.basic.Position;
 // Modified version of Position.class in Gboard library
 public class BuildingPosition  {
 
-    // TODO that's not good!
     public synchronized int getFloor(){
         return (ElevatorGBoard.getBoard().numberOfLines() - line);
     }
@@ -57,7 +56,7 @@ public class BuildingPosition  {
     }
 
 
-    public synchronized int getLayer()
+    synchronized int getLayer()
     {
         return layer;
     }

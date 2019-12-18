@@ -11,7 +11,6 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-// muss er auch actor sein?
 // This is the Model
 public class Person implements IObservable {
     private static Logger logger = Logger.getLogger("pt.ua.m.simon.person");
@@ -53,7 +52,6 @@ public class Person implements IObservable {
                     position.setLine(currLine-1);
                 break;
             case DOWN:
-                //TODO wip -- assert currLine < lineLimit;
                 if(currLine < lineLimit)
                     position.setLine(currLine+1);
                 break;

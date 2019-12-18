@@ -25,12 +25,11 @@ public class Elevator extends Actor implements IObservable{
 
     private ArrayList<Person> occupants;
 
-    // TODO: add list of Persons in Elevator to be updated
 
     Elevator(int l, int c) {
         super();
-        this.position =  new BuildingPosition(l,c);    // TODO
-        this.prev_position =  new BuildingPosition(l,c);    // TODO
+        this.position =  new BuildingPosition(l,c);
+        this.prev_position =  new BuildingPosition(l,c);
         this.observers = new ArrayList<>();
         this.gelem = new StripedGelem(Color.blue,4,1.0,1.0,false);
         this.position.setLayer(1);
@@ -122,7 +121,6 @@ public class Elevator extends Actor implements IObservable{
     }
 
 
-    // Routine is a first class function [method], not a "real" object --> message glaub ich
     class EmptyElevatorRoutine extends Actor.Routine{
         private final int destination;
         private final Future<Integer> future;
@@ -147,7 +145,7 @@ public class Elevator extends Actor implements IObservable{
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
                 try {
-                    sleep(200);    //TODO
+                    sleep(200);
 
                     if(down)
                         move(Direction.DOWN);
@@ -161,7 +159,7 @@ public class Elevator extends Actor implements IObservable{
                 }
             }
             logger.info("finished routine to go to " + destination);
-            // set future?
+
             futureDone(future);
         }
     }
@@ -191,7 +189,7 @@ public class Elevator extends Actor implements IObservable{
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
                 try {
-                    sleep(200);    //TODO
+                    sleep(200);
 
                     if(down)
                         move(Direction.DOWN);
@@ -205,7 +203,7 @@ public class Elevator extends Actor implements IObservable{
                 }
             }
             logger.info("finished routine to go to " + destination);
-            // set future?
+
             futureDone(future);
 
             occupants.remove(person);
