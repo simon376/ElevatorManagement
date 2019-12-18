@@ -147,7 +147,7 @@ public class Elevator extends Actor implements IObservable{
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
                 try {
-                    sleep(1000);    //TODO
+                    sleep(200);    //TODO
 
                     if(down)
                         move(Direction.DOWN);
@@ -191,7 +191,7 @@ public class Elevator extends Actor implements IObservable{
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
                 try {
-                    sleep(1000);    //TODO
+                    sleep(200);    //TODO
 
                     if(down)
                         move(Direction.DOWN);

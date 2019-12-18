@@ -54,13 +54,11 @@ public class ElevatorGBoard implements IObserver {
         board.draw(new ShapeGelem(c1), 0, 0, 0);
 
 
-//        Gelem elevatorCase = new FilledGelem(Color.orange, 100, board.numberOfLines(), 1);
-//        board.draw(elevatorCase, 0, 2, 0);
 
         int noLines = board.numberOfLines();
         for (int line = 0; line < noLines; line++) {
             String text = String.format("Floor %d",noLines - line);
-            board.draw(new StringGelem(text, Color.green,1,board.numberOfColumns()), line, 0, 0);//row,column,layer
+            board.draw(new StringGelem(text, Color.green,1,board.numberOfColumns()-2), line, 2, 0);//row,column,layer
         }
 
 

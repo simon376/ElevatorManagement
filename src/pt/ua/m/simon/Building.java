@@ -1,11 +1,13 @@
 package pt.ua.m.simon;
 
+import pt.ua.concurrent.CThread;
 import pt.ua.concurrent.Future;
 import pt.ua.m.simon.view.Direction;
 import pt.ua.m.simon.view.ElevatorGBoard;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
@@ -28,13 +30,70 @@ class Building {
         for (int i = 0; i < numPeople; i++) {
 
             int dest = ran.nextInt(numFloors-offset)+1+offset;
-            this.people.push(new Person(dest,numFloors, 0,alphabet[i]));
+            int startLine = ran.nextInt(numFloors);
+            this.people.push(new Person(dest,startLine, 0,alphabet[i]));
         }
 
         LinkedList<IObservable> observables = new LinkedList<>(this.people);
         observables.add(this.elevator);
         ElevatorGBoard ui = new ElevatorGBoard(observables, numFloors);
     }
+
+
+    synchronized void runSimulationConcurrent(){
+        LinkedList<CThread> threads = new LinkedList<>();
+        for (int i = 0; i < people.size(); i++) {
+            threads.push( new CThread(this::runSimulationConc) );
+        }
+        threads.forEach(CThread::start);
+        threads.forEach(CThread::ajoin);
+    }
+
+    private void runSimulationConc(){
+        Person p = people.pop();
+            // while not at elevator
+        Random ran = new Random();
+        int sleepTime = ran.nextInt(200);
+
+        while (p.getPosition().getColumn() < elevator.getPosition().getColumn()){
+            try {
+                sleep(sleepTime);    //TODO
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            p.move(Direction.RIGHT);
+        }
+
+
+        if(p.getCurrentFloor() != elevator.getCurrentFloor()){
+            logger.info("calling elevator to go to person at floor " + p.getCurrentFloor());
+            Future f  = elevator.goToFloorFuture(p.getCurrentFloor()); // call the elevator to persons floor
+            f.done();
+        }
+        logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
+        // TODO: check future and update UI
+        Future f = elevator.goToFloorFuture(p);
+
+
+
+        f.done();
+        while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
+            try {
+                sleep(200);    //TODO
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            p.move(Direction.RIGHT);
+        }
+
+
+        //elevator.terminate();
+        // TODO: wait until elevators are finished working and then terminate
+
+    }
+
 
     void runSimulation(){
         // TODO: persons arrive concurrently
@@ -44,7 +103,7 @@ class Building {
             // while not at elevator
             while (p.getPosition().getColumn() < elevator.getPosition().getColumn()){
                 try {
-                    sleep(500);    //TODO
+                    sleep(200);    //TODO
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -67,7 +126,7 @@ class Building {
             futures.pop().done();
             while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
                 try {
-                    sleep(500);    //TODO
+                    sleep(200);    //TODO
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -80,4 +139,5 @@ class Building {
         // TODO: wait until elevators are finished working and then terminate
 
     }
+
 }
