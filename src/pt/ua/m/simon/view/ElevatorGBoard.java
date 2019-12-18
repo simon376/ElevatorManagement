@@ -54,9 +54,8 @@ public class ElevatorGBoard implements IObserver {
         board.draw(new ShapeGelem(c1), 0, 0, 0);
 
 
-
-        Gelem elevatorCase = new FilledGelem(Color.orange, 90, board.numberOfLines(), 1);
-        board.draw(elevatorCase, 0, 2, 0);
+//        Gelem elevatorCase = new FilledGelem(Color.orange, 100, board.numberOfLines(), 1);
+//        board.draw(elevatorCase, 0, 2, 0);
 
         int noLines = board.numberOfLines();
         for (int line = 0; line < noLines; line++) {

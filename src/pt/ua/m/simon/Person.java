@@ -5,6 +5,7 @@ import pt.ua.gboard.Gelem;
 import pt.ua.gboard.basic.CharGelem;
 import pt.ua.m.simon.view.BuildingPosition;
 import pt.ua.m.simon.view.Direction;
+import pt.ua.m.simon.view.ElevatorGBoard;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -37,22 +38,33 @@ public class Person implements IObservable {
     }
 
 
-    void move(Direction direction)
+    synchronized void move(Direction direction)
     {
         int currLine = this.position.getLine();
         prev_position.setLine(currLine);
         int currCol = this.position.getColumn();
         prev_position.setColumn(currCol);
 
+        int lineLimit = ElevatorGBoard.getBoard().numberOfLines() -1;
+        int colLimit = ElevatorGBoard.getBoard().numberOfColumns() -1;
         switch (direction){
             case UP:
-                position.setLine(currLine-1); break;
+                if(currLine > 0)
+                    position.setLine(currLine-1);
+                break;
             case DOWN:
-                position.setLine(currLine+1); break;
+                //TODO wip -- assert currLine < lineLimit;
+                if(currLine < lineLimit)
+                    position.setLine(currLine+1);
+                break;
             case LEFT:
-                position.setColumn(currCol-1); break;
+                if(currCol > 0)
+                    position.setColumn(currCol-1);
+                break;
             case RIGHT:
-                position.setColumn(currCol+1); break;
+                if(currCol < colLimit)
+                    position.setColumn(currCol+1);
+                break;
         }
 
         notifyObservers();
@@ -67,36 +79,36 @@ public class Person implements IObservable {
                 '}';
     }
 
-    int getCurrentFloor() {
+    synchronized int getCurrentFloor() {
         return position.getFloor();
     }
 
-    int getDestinationFloor() {
+    synchronized int getDestinationFloor() {
         return destinationFloor;
     }
 
     @Override
-    public Gelem getGelem() {
+    public synchronized Gelem getGelem() {
         return gelem;
     }
 
     @Override
-    public BuildingPosition getPosition() {
+    public synchronized BuildingPosition getPosition() {
         return position;
     }
 
     @Override
-    public BuildingPosition getPrevPosition() {
+    public synchronized BuildingPosition getPrevPosition() {
         return prev_position;
     }
 
     @Override
-    public void registerObserver(IObserver o){
+    public synchronized void registerObserver(IObserver o){
         observers.add(o);
     }
 
 
-    public void notifyObservers(){
+    public synchronized void notifyObservers(){
         for (IObserver o : observers)
             o.update(this);
     }

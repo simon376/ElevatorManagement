@@ -6,15 +6,14 @@ import pt.ua.gboard.basic.Position;
 public class BuildingPosition  {
 
     // TODO that's not good!
-    public int getFloor(){
+    public synchronized int getFloor(){
         return (ElevatorGBoard.getBoard().numberOfLines() - line);
     }
-    public void setFloor(int floor) { this.line = ElevatorGBoard.getBoard().numberOfLines() - floor;}
-    public int[] getInt() { return new int[]{line,column};}
+    public synchronized void setFloor(int floor) { this.line = ElevatorGBoard.getBoard().numberOfLines() - floor;}
 
-    public void setLine(int line){ this.line = line;}
-    public void setColumn(int column){ this.column = column;}
-    public void setLayer(int layer){ this.layer = layer;}
+    public synchronized void setLine(int line){ this.line = line;}
+    public synchronized void setColumn(int column){ this.column = column;}
+    public synchronized void setLayer(int layer){ this.layer = layer;}
 
 
 
@@ -42,7 +41,7 @@ public class BuildingPosition  {
      *
      * @return {@code int} line position
      */
-    public int getLine()
+    public synchronized int getLine()
     {
         return line;
     }
@@ -52,13 +51,13 @@ public class BuildingPosition  {
      *
      * @return {@code int} column position
      */
-    public int getColumn()
+    public synchronized int getColumn()
     {
         return column;
     }
 
 
-    public int getLayer()
+    public synchronized int getLayer()
     {
         return layer;
     }
