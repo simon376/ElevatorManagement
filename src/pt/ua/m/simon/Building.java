@@ -22,14 +22,14 @@ class Building {
     Building(int numPeople, int numFloors) {
         this.elevator = new Elevator(3,2);
         this.people = new LinkedList<>();
-        char[] alphabet = new char[]{'A','B','C','D','E','F','G','H','I','J'};
+        char[] alphabet = new char[]{'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
         Random ran = new Random();
         int offset = 1;
         // create people at random positions
         for (int i = 0; i < numPeople; i++) {
             int dest = ran.nextInt(numFloors-offset)+1+offset;
             int startLine = ran.nextInt(numFloors);
-            this.people.push(new Person(dest,startLine, 0,alphabet[i]));
+            this.people.push(new Person(dest,startLine, 0,alphabet[i%alphabet.length]));
         }
 
         // setup UI
