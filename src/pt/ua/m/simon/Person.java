@@ -25,7 +25,7 @@ public class Person implements IObservable {
 
     private ArrayList<IObserver> observers;
 
-
+    /** create new Person, provide destination floor, start line & column and a character as a name **/
     Person(int destination, int startLine, int startColumn, char name) {
         this.destinationFloor = destination;
         this.name = name;
@@ -36,7 +36,7 @@ public class Person implements IObservable {
         this.position.setLayer(2);
     }
 
-
+    /** move Person one step (line or column) in given Direction **/
     synchronized void move(Direction direction)
     {
         int currLine = this.position.getLine();

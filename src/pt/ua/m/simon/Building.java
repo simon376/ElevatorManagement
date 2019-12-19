@@ -7,10 +7,8 @@ import pt.ua.m.simon.view.ElevatorGBoard;
 
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.logging.Logger;
 
-import static java.lang.Thread.sleep;
 
 
 // This is the Controller
@@ -27,19 +25,20 @@ class Building {
         char[] alphabet = new char[]{'A','B','C','D','E','F','G','H','I','J'};
         Random ran = new Random();
         int offset = 1;
+        // create people at random positions
         for (int i = 0; i < numPeople; i++) {
-
             int dest = ran.nextInt(numFloors-offset)+1+offset;
             int startLine = ran.nextInt(numFloors);
             this.people.push(new Person(dest,startLine, 0,alphabet[i]));
         }
 
+        // setup UI
         LinkedList<IObservable> observables = new LinkedList<>(this.people);
         observables.add(this.elevator);
         ElevatorGBoard ui = new ElevatorGBoard(observables, numFloors);
     }
 
-
+    /** creates a new Thread for each Person and starts the simulation **/
     synchronized void runSimulationConcurrent(){
         LinkedList<CThread> threads = new LinkedList<>();
         for (int i = 0; i < people.size(); i++) {
@@ -49,39 +48,34 @@ class Building {
         threads.forEach(CThread::ajoin);
     }
 
+    /** moves person to elevator, calls elevator to himself and then to destination, leaves at his floor **/
     private void runSimulationConc(){
+        if(people.size() <= 0)
+            return;
         Person p = people.pop();
-            // while not at elevator
+
         Random ran = new Random();
         int sleepTime = ran.nextInt(200);
 
+        // move to elevator
         while (p.getPosition().getColumn() < elevator.getPosition().getColumn()){
-            try {
-                sleep(sleepTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+            CThread.pause(sleepTime);
             p.move(Direction.RIGHT);
         }
 
-
+        // call the elevator to persons floor
         if(p.getCurrentFloor() != elevator.getCurrentFloor()){
-            Future f  = elevator.goToFloorFuture(p.getCurrentFloor()); // call the elevator to persons floor
+            Future f  = elevator.goToFloorFuture(p.getCurrentFloor());
             f.done();
         }
+
+        // call the elevator to destination floor
         Future f = elevator.goToFloorFuture(p);
-
-
-
         f.done();
-        while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
-            try {
-                sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
+        // move to end of the floor
+        while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
+            CThread.pause(200);
             p.move(Direction.RIGHT);
         }
 
@@ -94,12 +88,7 @@ class Building {
 
             // while not at elevator
             while (p.getPosition().getColumn() < elevator.getPosition().getColumn()){
-                try {
-                    sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+                CThread.pause(200);
                 p.move(Direction.RIGHT);
             }
 
@@ -116,12 +105,7 @@ class Building {
         for (Person p : people){
             futures.pop().done();
             while (p.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
-                try {
-                    sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
+                CThread.pause(200);
                 p.move(Direction.RIGHT);
             }
         }

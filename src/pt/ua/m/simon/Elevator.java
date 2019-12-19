@@ -1,6 +1,7 @@
 package pt.ua.m.simon;
 
 import pt.ua.concurrent.Actor;
+import pt.ua.concurrent.CThread;
 import pt.ua.concurrent.Future;
 import pt.ua.gboard.Gelem;
 import pt.ua.gboard.basic.StripedGelem;
@@ -51,6 +52,7 @@ public class Elevator extends Actor implements IObservable{
 //        assert  (currentFloor < MAX_FLOOR && currentFloor > MIN_FLOOR);
     }
 
+    /** add a new Routine (Message) to queue, to move elevator to given destination floor **/
     Future<Integer> goToFloorFuture(int floor){
         final Future<Integer> result = new Future<>(true);
         Routine routine = new EmptyElevatorRoutine(floor, result);   // create message
@@ -59,6 +61,7 @@ public class Elevator extends Actor implements IObservable{
         return result;
     }
 
+    /** add a new Routine (Message) to queue, to move elevator to person's destination floor **/
     Future<Integer> goToFloorFuture(Person person){
         final Future<Integer> result = new Future<>(true);
         Routine routine = new ElevatorRoutine(person, result);   // create message
@@ -93,6 +96,7 @@ public class Elevator extends Actor implements IObservable{
         return prev_position;
     }
 
+    /** move the elevator and all its occupants in given Direction**/
     private synchronized void move(Direction direction)
     {
         int currLine = this.position.getLine();
@@ -140,20 +144,16 @@ public class Elevator extends Actor implements IObservable{
         public void execute() {
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
-                try {
-                    sleep(200);
+                CThread.pause(200);
 
-                    if(down)
-                        move(Direction.DOWN);
-                    else
-                        move(Direction.UP);
+                if(down)
+                    move(Direction.DOWN);
+                else
+                    move(Direction.UP);
 
-                    future.setResult(position.getFloor());
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                future.setResult(position.getFloor());
             }
+
             logger.info("finished routine to go to " + destination);
 
             futureDone(future);
@@ -184,19 +184,14 @@ public class Elevator extends Actor implements IObservable{
 
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
-                try {
-                    sleep(200);
+                CThread.pause(200);
+                if(down)
+                    move(Direction.DOWN);
+                else
+                    move(Direction.UP);
 
-                    if(down)
-                        move(Direction.DOWN);
-                    else
-                        move(Direction.UP);
+                future.setResult(position.getFloor());
 
-                    future.setResult(position.getFloor());
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
             logger.info("finished routine: " + person.toString());
 
