@@ -102,18 +102,18 @@ public class Elevator extends Actor implements IObservable{
 
         switch (direction){
             case UP:
-                assert position.getLine() > 0;
-                position.setLine(currLine-1);
-                for (Person p : occupants)
-                    p.move(Direction.UP);
-                logger.info("elevator moving up, current:" + getCurrentFloor());
+                if(position.getLine() > 0){
+                    position.setLine(currLine-1);
+                    for (Person p : occupants)
+                        p.move(Direction.UP);
+                }
                 break;
             case DOWN:
-                assert position.getLine() < ElevatorGBoard.getBoard().numberOfLines() - 1;
-                position.setLine(currLine+1);
-                for (Person p : occupants)
-                    p.move(Direction.DOWN);
-                logger.info("elevator moving down, current:" + getCurrentFloor());
+                if(position.getLine() < ElevatorGBoard.getBoard().numberOfLines() -1){
+                    position.setLine(currLine+1);
+                    for (Person p : occupants)
+                        p.move(Direction.DOWN);
+                }
                 break;
         }
 
@@ -133,15 +133,11 @@ public class Elevator extends Actor implements IObservable{
 
         @Override
         public boolean concurrentPrecondition() {
-            return super.concurrentPrecondition();
-            // TODO
+            return (this.destination <= ElevatorGBoard.getBoard().numberOfLines() && this.destination > 0);
         }
 
         @Override
         public void execute() {
-
-            if(destination == position.getFloor())
-                return;
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
                 try {
@@ -167,25 +163,25 @@ public class Elevator extends Actor implements IObservable{
     class ElevatorRoutine extends Actor.Routine{
         private final Person person;
         private final Future<Integer> future;
+        private final int destination;
 
         ElevatorRoutine(Person person, Future<Integer> result) {
             super();
             this.person = person;
+            this.destination = person.getDestinationFloor();
             occupants.add(person);
             this.future = result;
         }
 
         @Override
         public boolean concurrentPrecondition() {
-            return super.concurrentPrecondition();
+            return (this.destination <= ElevatorGBoard.getBoard().numberOfLines() && this.destination > 0);
         }
 
         @Override
         public void execute() {
+            logger.info("started routine: " + person.toString());
 
-            int destination = person.getDestinationFloor();
-            if(destination == position.getFloor())
-                return;
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
                 try {
@@ -202,7 +198,7 @@ public class Elevator extends Actor implements IObservable{
                     e.printStackTrace();
                 }
             }
-            logger.info("finished routine to go to " + destination);
+            logger.info("finished routine: " + person.toString());
 
             futureDone(future);
 

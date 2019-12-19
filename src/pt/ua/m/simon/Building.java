@@ -67,11 +67,9 @@ class Building {
 
 
         if(p.getCurrentFloor() != elevator.getCurrentFloor()){
-            logger.info("calling elevator to go to person at floor " + p.getCurrentFloor());
             Future f  = elevator.goToFloorFuture(p.getCurrentFloor()); // call the elevator to persons floor
             f.done();
         }
-        logger.info("calling elevator to go from person at " + p.getCurrentFloor() + " to floor " + p.getDestinationFloor());
         Future f = elevator.goToFloorFuture(p);
 
 
