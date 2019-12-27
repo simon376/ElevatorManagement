@@ -44,23 +44,22 @@ public class Person implements IObservable {
         this.position.setLayer(2);
     }
 
-    //TODO
     void startMovementAgenda(){
         /*
-        find closest elevator (how??)
-        move to random floor
-        wait random time
-        move to random floor
         repeat a random number of times
-        when finished, change color or sth.
+            find closest elevator
+            move to random floor
+            go left or right
+            wait random time
          */
         Random ran = new Random();
         int walkTime = ran.nextInt(100)+100;
         int sleepTime = ran.nextInt(900)+100;
         boolean moveRight = true;
-        int repetitions = ran.nextInt(17)+3;
+        int repetitions = ran.nextInt(15)+5;
 
         for (int i = 0; i < repetitions; i++) {
+            logger.info(this.toString() + " starting rep #" + i + " of " + repetitions);
             int destFloor = ran.nextInt(MAX_FLOOR);
             this.setDestinationFloor(destFloor);
             Elevator elevator = building.getClosestElevator(this.position);
@@ -83,6 +82,7 @@ public class Person implements IObservable {
 
             // call the elevator to destination floor
             Future f = elevator.goToFloorFuture(this);
+
             f.done();
 
             // move to end of the floor

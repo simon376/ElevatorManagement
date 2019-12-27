@@ -45,7 +45,7 @@ public class Elevator extends Actor implements IObservable{
     // returns current floor
     Integer goToFloor(int floor){
         assert  (floor < MAX_FLOOR && floor > MIN_FLOOR);
-        logger.info("starting routine to go from: " + position.getFloor() + " to " + floor);
+        logger.info(this.getName() + ": starting routine to go from: " + position.getFloor() + " to " + floor);
 
         Future<Integer> future = goToFloorFuture(floor);
         return future.result();
@@ -56,7 +56,7 @@ public class Elevator extends Actor implements IObservable{
     Future<Integer> goToFloorFuture(int floor){
         final Future<Integer> result = new Future<>(true);
         Routine routine = new EmptyElevatorRoutine(floor, result);   // create message
-        logger.info("received call to floor " + floor);
+        logger.info(this.getName() + ": received call to floor " + floor);
         inPendingRoutine(routine);  // "send" it to the Elevator-Actor
         return result;
     }
@@ -65,9 +65,13 @@ public class Elevator extends Actor implements IObservable{
     Future<Integer> goToFloorFuture(Person person){
         final Future<Integer> result = new Future<>(true);
         Routine routine = new ElevatorRoutine(person, result);   // create message
-        logger.info("received call " + person.toString());
+        logger.info(this.getName() + ": received call " + person.toString());
         inPendingRoutine(routine);  // "send" it to the Elevator-Actor
         return result;
+    }
+
+    private void logInfo(){
+        logger.info(this.getName() + ": pending messages: " + this.pending.size() + " | occupants left: " + occupants.size());
     }
 
     @Override
@@ -154,8 +158,8 @@ public class Elevator extends Actor implements IObservable{
                 future.setResult(position.getFloor());
             }
 
-            logger.info("finished routine to go to " + destination);
-
+            logger.info(this.toString() + ": finished routine to go to " + destination);
+            logInfo();
             futureDone(future);
         }
     }
@@ -180,7 +184,7 @@ public class Elevator extends Actor implements IObservable{
 
         @Override
         public void execute() {
-            logger.info("started routine: " + person.toString());
+            logger.info(this.toString() + ": started routine: " + person.toString());
 
             boolean down = position.getFloor() > destination;
             while(position.getFloor() != destination){
@@ -193,11 +197,10 @@ public class Elevator extends Actor implements IObservable{
                 future.setResult(position.getFloor());
 
             }
-            logger.info("finished routine: " + person.toString());
-
-            futureDone(future);
-
+            logger.info(this.toString() + ": finished routine: " + person.toString());
             occupants.remove(person);
+            logInfo();
+            futureDone(future);
         }
     }
 }

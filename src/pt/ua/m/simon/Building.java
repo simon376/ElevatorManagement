@@ -1,14 +1,15 @@
 package pt.ua.m.simon;
 
+import pt.ua.concurrent.Actor;
 import pt.ua.concurrent.CRunnable;
 import pt.ua.concurrent.CThread;
-import pt.ua.concurrent.Future;
 import pt.ua.m.simon.view.BuildingPosition;
 import pt.ua.m.simon.view.Direction;
 import pt.ua.m.simon.view.ElevatorGBoard;
 
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 
@@ -53,7 +54,8 @@ class Building {
     /** creates a new Thread for each Person and starts the simulation **/
     synchronized void runSimulationConcurrent(){
         LinkedList<CThread> threads = new LinkedList<>();
-        for (int i = 0; i < people.size(); i++) {
+        int noPeople = people.size();
+        for (int i = 0; i < noPeople; i++) {
             /* moves person to elevator, calls elevator to himself and then to destination, leaves at his floor */
             threads.push(new CThread(new CRunnable() {
                 @Override
@@ -61,10 +63,11 @@ class Building {
                     Person p = people.pop();
                     p.startMovementAgenda();
                 }
-            }));
+            }, ("Person-"+i)));
         }
         threads.forEach(CThread::start);
-        threads.forEach(CThread::ajoin);
+        //threads.forEach(CThread::ajoin);
+
     }
 
     Elevator getClosestElevator(BuildingPosition position){
