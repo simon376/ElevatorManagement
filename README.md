@@ -7,5 +7,5 @@ Final Assignment for Object-Oriented Concurrent Programming @ Universidade de Av
  
 
 -- Currently has a Programbreaking bug!
-  the elevator removes a Routine from its queue without properly finishing it
-  one person is left waiting for the future to finish forever and everybody starves
+  the elevator removes a Routine from its queue without properly finishing it, 
+  which leads to one person left waiting for the future to finish forever and everybody starves
