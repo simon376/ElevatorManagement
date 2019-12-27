@@ -29,9 +29,12 @@ public class Person implements IObservable {
 
     private ArrayList<IObserver> observers;
 
+    private int MAX_FLOOR = Integer.MAX_VALUE;
+
     /** create new Person, provide destination floor, start line & column and a character as a name **/
     Person(Building building, int destination, int startLine, int startColumn, char name) {
         this.building = building;
+        this.MAX_FLOOR = this.building.getNoFloors();
         this.destinationFloor = destination;
         this.name = name;
         this.gelem = new CharGelem(name, Color.red);
@@ -51,16 +54,16 @@ public class Person implements IObservable {
         repeat a random number of times
         when finished, change color or sth.
          */
-        Elevator elevator = building.getClosestElevator(this.position);
         Random ran = new Random();
-        int walkTime = ran.nextInt(200);
-        int sleepTime = ran.nextInt(1000);
-
-        int repetitions = ran.nextInt(20);
+        int walkTime = ran.nextInt(100)+100;
+        int sleepTime = ran.nextInt(900)+100;
+        boolean moveRight = true;
+        int repetitions = ran.nextInt(17)+3;
 
         for (int i = 0; i < repetitions; i++) {
-            int destFloor = ran.nextInt(building.getNoFloors());
+            int destFloor = ran.nextInt(MAX_FLOOR);
             this.setDestinationFloor(destFloor);
+            Elevator elevator = building.getClosestElevator(this.position);
 
             // move to elevator
             while (this.getPosition().getColumn() < elevator.getPosition().getColumn()){
@@ -85,8 +88,13 @@ public class Person implements IObservable {
             // move to end of the floor
             while (this.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
                 CThread.pause(walkTime);
-                this.move(Direction.RIGHT);
+                if(moveRight)
+                    this.move(Direction.RIGHT);
+                else
+                    this.move(Direction.LEFT);
             }
+            moveRight = !moveRight;
+
 
             CThread.pause(sleepTime);
         }
