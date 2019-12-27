@@ -86,15 +86,19 @@ public class Person implements IObservable {
             f.done();
 
             // move to end of the floor
-            while (this.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() -1){
-                CThread.pause(walkTime);
-                if(moveRight)
+            if(moveRight) {
+                while (this.getPosition().getColumn() < ElevatorGBoard.getBoard().numberOfColumns() - 1) {
+                    CThread.pause(walkTime);
                     this.move(Direction.RIGHT);
-                else
+                }
+            }
+            else{
+                while (this.getPosition().getColumn() > 0) {
+                    CThread.pause(walkTime);
                     this.move(Direction.LEFT);
+                }
             }
             moveRight = !moveRight;
-
 
             CThread.pause(sleepTime);
         }
